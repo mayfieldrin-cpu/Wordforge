@@ -82,9 +82,14 @@ export default function WordExplorer({ initialWord, onWordUsed }: Props) {
     setData(null);
     try {
       const res = await fetch(`/api/word?word=${encodeURIComponent(word.trim())}`);
-      if (!res.ok) throw new Error('Not found');
       const json = await res.json();
-      setData(json);
+      if (json.error && !json.word) throw new Error(json.error);
+      setData({
+        word: json.word || word,
+        definitions: json.definitions || [],
+        relatedWords: json.relatedWords || [],
+        examples: json.examples || [],
+      });
     } catch {
       setError('Could not find that word. Try another!');
     } finally {
